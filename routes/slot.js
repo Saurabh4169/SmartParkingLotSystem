@@ -101,7 +101,7 @@ router.post("/remove", async (req, res) => {
 
         // ❌ Invalid slot number
         if (!slotNo || slotNo <= 0) {
-            return res.render("slots/remove", { message: "❌ Invalid slot number" });
+            return res.render("slots/remove", { message: "Invalid slot number" });
         }
 
         const slot = await Slot.findOne({ slotNo });
