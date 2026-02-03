@@ -3,12 +3,12 @@ const mongoose = require("mongoose");
 const methodOverride = require("method-override");
 const path = require("path");
 
-const slotRoutes = require("./routes/slot");
+const slotRoutes = require("./routes/slot"); // correct filename
 
 const app = express();
 
 // ================== MongoDB Connection ==================
-const DB_URL = "mongodb://127.0.0.1:27017/smartParking";
+const DB_URL = process.env.MONGO_URL || "mongodb://127.0.0.1:27017/smartParking";
 
 mongoose.connect(DB_URL)
 .then(() => console.log("MongoDB Connected"))
