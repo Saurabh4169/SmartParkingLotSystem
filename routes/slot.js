@@ -12,7 +12,19 @@ router.get("/new", (req, res) => {
 // ================= ADD SLOT TO DB =================
 router.post("/", async (req, res) => {
     try {
-        const { slotNo, isCovered, isEVCharging } = req.body;
+        let { slotNo, isCovered, isEVCharging } = req.body;
+        slotNo = parseInt(slotNo);
+
+        // ❌ Invalid slot number
+        if (!slotNo || slotNo <= 0) {
+            return res.send("❌ Slot number must be greater than 0");
+        }
+
+        // ❌ Duplicate slot number
+        const existing = await Slot.findOne({ slotNo });
+        if (existing) {
+            return res.send("⚠️ Slot number already exists");
+        }
 
         const newSlot = new Slot({
             slotNo,
@@ -22,16 +34,22 @@ router.post("/", async (req, res) => {
 
         await newSlot.save();
         res.redirect("/slots");
+
     } catch (err) {
-        res.send("Error adding slot: " + err.message);
+        console.error(err);
+        res.send("❌ Error adding slot");
     }
 });
 
 
 // ================= VIEW ALL SLOTS =================
 router.get("/", async (req, res) => {
-    const slots = await Slot.find().sort({ slotNo: 1 });
-    res.render("slots/index", { slots });
+    try {
+        const slots = await Slot.find().sort({ slotNo: 1 });
+        res.render("slots/index", { slots });
+    } catch (err) {
+        res.send("❌ Error loading slots");
+    }
 });
 
 
@@ -43,23 +61,29 @@ router.get("/park", (req, res) => {
 
 // ================= HANDLE PARK VEHICLE =================
 router.post("/park", async (req, res) => {
-    const needsEV = req.body.needsEV === "on";
-    const needsCover = req.body.needsCover === "on";
+    try {
+        const needsEV = req.body.needsEV === "on";
+        const needsCover = req.body.needsCover === "on";
 
-    const slot = await Slot.findOne({
-        isOccupied: false,
-        ...(needsEV && { isEVCharging: true }),
-        ...(needsCover && { isCovered: true })
-    }).sort({ slotNo: 1 });
+        const slot = await Slot.findOne({
+            isOccupied: false,
+            ...(needsEV && { isEVCharging: true }),
+            ...(needsCover && { isCovered: true })
+        }).sort({ slotNo: 1 });
 
-    if (!slot) {
-        return res.render("slots/park", { message: "❌ No slot available" });
+        if (!slot) {
+            return res.render("slots/park", { message: "❌ No slot available" });
+        }
+
+        slot.isOccupied = true;
+        await slot.save();
+
+        res.render("slots/park", { message: `✅ Vehicle parked at Slot ${slot.slotNo}` });
+
+    } catch (err) {
+        console.error(err);
+        res.render("slots/park", { message: "❌ Server error while parking" });
     }
-
-    slot.isOccupied = true;
-    await slot.save();
-
-    res.render("slots/park", { message: `✅ Vehicle parked at Slot ${slot.slotNo}` });
 });
 
 
@@ -71,22 +95,34 @@ router.get("/remove", (req, res) => {
 
 // ================= HANDLE REMOVE VEHICLE =================
 router.post("/remove", async (req, res) => {
-    const { slotNo } = req.body;
+    try {
+        let { slotNo } = req.body;
+        slotNo = parseInt(slotNo);
 
-    const slot = await Slot.findOne({ slotNo });
+        // ❌ Invalid slot number
+        if (!slotNo || slotNo <= 0) {
+            return res.render("slots/remove", { message: "❌ Invalid slot number" });
+        }
 
-    if (!slot) {
-        return res.render("slots/remove", { message: "❌ Slot not found" });
+        const slot = await Slot.findOne({ slotNo });
+
+        if (!slot) {
+            return res.render("slots/remove", { message: "❌ Slot not found" });
+        }
+
+        if (!slot.isOccupied) {
+            return res.render("slots/remove", { message: "⚠️ Slot is already empty" });
+        }
+
+        slot.isOccupied = false;
+        await slot.save();
+
+        res.render("slots/remove", { message: `✅ Slot ${slotNo} is now free` });
+
+    } catch (err) {
+        console.error(err);
+        res.render("slots/remove", { message: "❌ Server error while removing vehicle" });
     }
-
-    if (!slot.isOccupied) {
-        return res.render("slots/remove", { message: "⚠️ Slot is already empty" });
-    }
-
-    slot.isOccupied = false;
-    await slot.save();
-
-    res.render("slots/remove", { message: `✅ Slot ${slotNo} is now free` });
 });
 
 
