@@ -1,0 +1,26 @@
+<%- include("../partials/header") %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Remove Vehicle</title>
+</head>
+<body>
+    <h1>Remove Vehicle (Free Slot)</h1>
+
+    <form action="/slots/remove" method="POST">
+        <label>Enter Slot Number:</label>
+        <input type="number" name="slotNo" required>
+        <button type="submit">Remove Vehicle</button>
+    </form>
+
+    <br>
+
+    <% if (message) { %>
+        <h3><%= message %></h3>
+    <% } %>
+
+    <br>
+    <a href="/slots">Back to Slot List</a>
+</body>
+</html>
+<%- include("../partials/footer") %>

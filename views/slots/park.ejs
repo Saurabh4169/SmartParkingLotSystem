@@ -1,0 +1,34 @@
+<%- include("../partials/header") %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Park Vehicle</title>
+</head>
+<body>
+    <h1>Park a Vehicle</h1>
+
+    <form action="/slots/park" method="POST">
+        <label>
+            <input type="checkbox" name="needsEV">
+            Needs EV Charging
+        </label><br><br>
+
+        <label>
+            <input type="checkbox" name="needsCover">
+            Needs Covered Parking
+        </label><br><br>
+
+        <button type="submit">Find Slot</button>
+    </form>
+
+    <br>
+
+    <% if (message) { %>
+        <h3><%= message %></h3>
+    <% } %>
+
+    <br>
+    <a href="/slots">View All Slots</a>
+</body>
+</html>
+<%- include("../partials/footer") %>

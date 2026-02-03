@@ -1,0 +1,35 @@
+<%- include("../partials/header") %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Parking Slots</title>
+</head>
+<body>
+    <h1>Parking Slots</h1>
+
+    <a href="/slots/new">Add New Slot</a> |
+    <a href="/slots/park">Park Vehicle</a> |
+    <a href="/slots/remove">Remove Vehicle</a>
+
+    <br><br>
+
+    <table border="1" cellpadding="8">
+        <tr>
+            <th>Slot No</th>
+            <th>Covered</th>
+            <th>EV Charging</th>
+            <th>Occupied</th>
+        </tr>
+
+        <% slots.forEach(slot => { %>
+            <tr>
+                <td><%= slot.slotNo %></td>
+                <td><%= slot.isCovered ? "Yes" : "No" %></td>
+                <td><%= slot.isEVCharging ? "Yes" : "No" %></td>
+                <td><%= slot.isOccupied ? "Yes" : "No" %></td>
+            </tr>
+        <% }) %>
+    </table>
+</body>
+</html>
+<%- include("../partials/footer") %>
